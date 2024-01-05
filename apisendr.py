@@ -1,5 +1,6 @@
 import click
 import utils
+import pprint
 
 @click.group()
 def APISendr():
@@ -8,11 +9,15 @@ def APISendr():
 @APISendr.command()
 @click.option('--method','-m',default='get',help='Method of request')
 @click.option('--url','-u',required=True,help='Url for send request')
-def query(method,url):
+@click.option('--authorization','-a',help='authorized by JWT')
+def query(method,url,authorization):
     if method != None and url != None:
-        r = utils.send_request(method,url,None,None)
+        if authorization != None:
+            r = utils.send_request(method,url,None,None,authorization)
+        else:
+            r = utils.send_request(method,url,None,None,None)
         if r.status_code == 200:
-            print(r.json())
+            pprint.pprint(r.json())
         else:
             print(r.status_code)
     else:
@@ -24,10 +29,10 @@ def file(path):
     if path != None:
         data = utils.read_json(path)
         if utils.extract_data(data) != False:
-            method,url,body,headers = utils.extract_data(data)
-            r = utils.send_request(method,url,body,headers)
+            method,url,body,headers,authorization = utils.extract_data(data)
+            r = utils.send_request(method,url,body,headers,authorization)
             if r.status_code == 200:
-                print(r.json())
+                pprint.pprint(r.json())
             else:
                 print(r.status_code)
         else:

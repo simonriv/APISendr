@@ -7,7 +7,9 @@ def read_json(route):
         data = json.load(f)
     return data
 
-def send_request(method,url,body,headers):
+def send_request(method,url,body,headers,authorization):
+    if authorization != None:
+        headers['Authorization'] = authorization 
     try:
         if method == 'get' or method == 'GET':
             if headers != None and body != None:
@@ -69,14 +71,20 @@ def send_request(method,url,body,headers):
 def extract_data(data):
     if data != []:
         if "method" in data and "url" in data:
-            if "body" in data and "headers" in data:
-                return data["method"],data["url"],data["body"],data["headers"]
-            elif not "headers" in data and "body" in data:
-                return data["method"],data["url"],data["body"],None
-            elif not "body" in data and "headers" in data:
-                return data["method"],data["url"],None,data["headers"]
+            if "body" in data and "headers" in data and "authorization" in data:
+                return data["method"],data["url"],data["body"],data["headers"],data["authorization"]
+            elif not "headers" in data and "body" in data and "authorization" in data:
+                return data["method"],data["url"],data["body"],None,data["authorization"]
+            elif not "body" in data and "headers" in data and "authorization" in data:
+                return data["method"],data["url"],None,data["headers"],data["authorization"]
+            elif "body" in data and "headers" in data and not "authorization" in data:
+                return data["method"],data["url"],data["body"],data["headers"],None
+            elif not "headers" in data and "body" in data and not "authorization" in data:
+                return data["method"],data["url"],data["body"],None,None
+            elif not "body" in data and "headers" in data and not "authorization" in data:
+                return data["method"],data["url"],None,data["headers"],None
             else:
-                return data["method"],data["url"],None,None
+                return data["method"],data["url"],None,None,None
         else:
             print('ERR/(0x002): Method and Url is required.')
             return False
